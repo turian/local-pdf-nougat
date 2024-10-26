@@ -2,11 +2,14 @@
 import base64
 import os
 import os.path
+import random
 import sys
 
 import replicate
 import requests
-from tqdm import tqdm
+from parallelbar import progress_map
+
+random.seed(42)
 
 
 def upload_pdf_to_fileio(file_path):
@@ -43,23 +46,29 @@ def upload_pdf_to_fileio(file_path):
         raise Exception(f"HTTP error occurred: {response.status_code}")
 
 
+def process_file(pdf):
+    markdown = pdf.replace(".pdf", ".md")
+    if os.path.isfile(markdown):
+        return
+
+    try:
+        download_url = upload_pdf_to_fileio(pdf)
+        print(f"PDF uploaded successfully. Download URL: {download_url}")
+
+        output = replicate.run(
+            "awilliamson10/meta-nougat:872fa99400b0eeb8bfc82ef433aa378976b4311178ff64fed439470249902071",
+            input={
+                "pdf_link": download_url,
+            },
+        )
+        open(markdown, "w").write(output)
+        return None
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return None
+
+
 if __name__ == "__main__":
     pdfs_to_convert = sys.argv[1:]
-    for pdf in tqdm(pdfs_to_convert):
-        markdown = pdf.replace(".pdf", ".md")
-        if os.path.isfile(markdown):
-            continue
-
-        try:
-            download_url = upload_pdf_to_fileio(pdf)
-            print(f"PDF uploaded successfully. Download URL: {download_url}")
-
-            output = replicate.run(
-                "awilliamson10/meta-nougat:872fa99400b0eeb8bfc82ef433aa378976b4311178ff64fed439470249902071",
-                input={
-                    "pdf_link": download_url,
-                },
-            )
-            open(markdown, "w").write(output)
-        except Exception as e:
-            print(f"An error occurred: {str(e)}")
+    random.shuffle(pdfs_to_convert)
+    res = progress_map(process_file, pdfs_to_convert, n_cpu=16)

@@ -2,6 +2,7 @@
 import base64
 import os
 import os.path
+import random
 import sys
 
 import replicate
@@ -45,6 +46,7 @@ def upload_pdf_to_fileio(file_path):
 
 if __name__ == "__main__":
     pdfs_to_convert = sys.argv[1:]
+    random.shuffle(pdfs_to_convert)
     for pdf in tqdm(pdfs_to_convert):
         markdown = pdf.replace(".pdf", ".md")
         if os.path.isfile(markdown):

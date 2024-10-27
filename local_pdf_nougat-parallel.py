@@ -9,7 +9,7 @@ import replicate
 import requests
 from parallelbar import progress_map
 
-random.seed(42)
+# random.seed(42)
 
 
 def upload_pdf_to_fileio(file_path):

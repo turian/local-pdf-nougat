@@ -71,4 +71,14 @@ def process_file(pdf):
 if __name__ == "__main__":
     pdfs_to_convert = sys.argv[1:]
     random.shuffle(pdfs_to_convert)
-    res = progress_map(process_file, pdfs_to_convert, n_cpu=16)
+
+    new_pdfs_to_convert = []
+    for pdf in pdfs_to_convert:
+        markdown = pdf.replace(".pdf", ".md")
+        if os.path.isfile(markdown):
+            continue
+        else:
+            new_pdfs_to_convert.append(pdf)
+
+    res = progress_map(process_file, new_pdfs_to_convert, n_cpu=16)
+    #res = progress_map(process_file, new_pdfs_to_convert, n_cpu=8)

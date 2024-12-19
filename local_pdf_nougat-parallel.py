@@ -80,5 +80,6 @@ if __name__ == "__main__":
         else:
             new_pdfs_to_convert.append(pdf)
 
-    res = progress_map(process_file, new_pdfs_to_convert, n_cpu=16)
-    #res = progress_map(process_file, new_pdfs_to_convert, n_cpu=8)
+    #res = progress_map(process_file, new_pdfs_to_convert, n_cpu=32)
+    #res = progress_map(process_file, new_pdfs_to_convert, n_cpu=16)
+    res = progress_map(process_file, new_pdfs_to_convert, n_cpu=8)
